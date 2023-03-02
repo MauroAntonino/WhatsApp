@@ -1,0 +1,35 @@
+
+CREATE TABLE Users 
+( 
+ id INT PRIMARY KEY,  
+ name VARCHAR(100) NOT NULL,  
+ email VARCHAR(100) NOT NULL,  
+ password VARCHAR(100) NOT NULL  
+); 
+
+CREATE TABLE Groups 
+( 
+ name VARCHAR(100) PRIMARY KEY NOT NULL,  
+ description VARCHAR(100)  
+); 
+
+CREATE TABLE UserGroups 
+( 
+ user INT ,  
+ group_name VARCHAR(100) 
+); 
+
+CREATE TABLE Messages 
+( 
+ value VARCHAR(100),  
+ date DATE NOT NULL,  
+ user INT,  
+ group_name VARCHAR(100)  
+); 
+
+ALTER TABLE Users ADD UNIQUE unique_index (name, email);
+ALTER TABLE UserGroups ADD UNIQUE unique_index (user, group_name);
+ALTER TABLE UserGroups ADD FOREIGN KEY(user) REFERENCES Users (id);
+ALTER TABLE UserGroups ADD FOREIGN KEY(group_name) REFERENCES Groups (name);
+ALTER TABLE Messages ADD FOREIGN KEY(user) REFERENCES Users (id);
+ALTER TABLE Messages ADD FOREIGN KEY(group_name) REFERENCES Groups (name);

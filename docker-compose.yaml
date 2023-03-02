@@ -1,0 +1,67 @@
+version: "3.7"
+
+services:
+  login:
+    container_name: node-login
+    volumes:
+      - login:/login_service/app
+    depends_on:
+      - mysql
+    build: ./login_service/app
+    # env_file: ./.env
+    ports:
+      - 3000:3000
+    #   - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: test01
+      MYSQL_DB: login
+      CHAT_HOST: chat
+    networks:
+      - backend
+  
+  chat:
+    container_name: chat
+    volumes:
+      - chat:/server
+    depends_on:
+      - mysql
+    build: ./server
+    # env_file: ./.env
+    ports:
+      - 3030:3030
+    networks:
+      - backend
+  
+  repo:
+    container_name: repo
+    volumes:
+      - repo:/repo_operations
+    depends_on:
+      - mysql
+    build: ./repo_operations
+    # env_file: ./.env
+    ports:
+      - 5000:5000
+    networks:
+      - backend
+
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    volumes:
+      - todo-mysql-data:/var/lib/mysql
+    environment: 
+      MYSQL_ROOT_PASSWORD: test01
+      MYSQL_DATABASE: login
+    networks:
+      - backend      
+networks:
+  backend:
+
+volumes:
+  login:
+  chat:
+  todo-mysql-data:
+  repo:
