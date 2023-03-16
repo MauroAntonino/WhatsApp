@@ -1,10 +1,10 @@
 
-let user = {
-	id: 0,
-	name: "Anish",
-	number: "+91 91231 40293",
-	pic: "images/asdsd12f34ASd231.png"
-};
+// let user = {
+// 	id: "{{id}}",
+// 	name: "{{name}}",
+// 	number: "+91 91231 40293",
+// 	pic: "images/asdsd12f34ASd231.png"
+// };
 
 let contactList = [
 	{
@@ -180,6 +180,12 @@ let messages = [
 
 let MessageUtils = {
 	getByGroupId: (groupId) => {
+		// var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+		// var theUrl = "http://127.0.0.1:5000/groups";
+		// xmlhttp.open("POST", theUrl);
+		// xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		// xmlhttp.send(JSON.stringify({"name": "carlos", "password": "123"}));
+		// console.log(xmlhttp.response)
 		return messages.filter(msg => msg.recvIsGroup && msg.recvId === groupId);
 	},
 	getByContactId: (contactId) => {

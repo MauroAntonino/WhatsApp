@@ -25,6 +25,8 @@ RUN pip install -r requirements.txt
 COPY . /app
 
 # configure the container to run in an executed manner
-ENTRYPOINT [ "python3" ]
+# ENTRYPOINT [ "python3" ]
 
-CMD ["main.py" ]
+# CMD ["main.py" ]
+
+CMD ["python3","-u","main.py"]

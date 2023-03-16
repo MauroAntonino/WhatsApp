@@ -45,82 +45,61 @@ let mClassList = (element) => {
 // in mobile-view
 let areaSwapped = false;
 
-// 'chat' is used to store the current chat
-// which is being opened in the message area
-let chat = null;
+let loadGroups = () => {
+	return new Promise((resolve, reject) => {
+		var req = new XMLHttpRequest();
+		var url  = "http://127.0.0.1:5000/groups"
+	
+		req.open("POST", url);
+		req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		let data = {
+			"name": user.name,
+			"password": user.password
+		};
+		req.onreadystatechange = function () {
+			if (req.readyState === 4) {
+				console.log(req.status);
+				console.log(req.responseText);
+				resolve(JSON.parse(req.responseText)["response"]);
+			}};
+		req.send(JSON.stringify(data));
+		// console.log(chatList)
+	})
+}
 
-// this will contain all the chats that is to be viewed
-// in the chatListArea
-let chatList = [];
-
-// this will be used to store the date of the last message
-// in the message area
-let lastDate = "";
-
-// 'populateChatList' will generate the chat list
-// based on the 'messages' in the datastore
-let populateChatList = () => {
-	chatList = [];
-
-	// 'present' will keep track of the chats
-	// that are already included in chatList
-	// in short, 'present' is a Map DS
-	let present = {};
-
-	MessageUtils.getMessages()
-	.sort((a, b) => mDate(a.time).subtract(b.time))
-	.forEach((msg) => {
-		let chat = {};
-		
-		chat.isGroup = msg.recvIsGroup;
-		chat.msg = msg;
-
-		if (msg.recvIsGroup) {
-			chat.group = groupList.find((group) => (group.id === msg.recvId));
-			chat.name = chat.group.name;
-		} else {
-			chat.contact = contactList.find((contact) => (msg.sender !== user.id) ? (contact.id === msg.sender) : (contact.id === msg.recvId));
-			chat.name = chat.contact.name;
-		}
-
-		chat.unread = (msg.sender !== user.id && msg.status < 2) ? 1: 0;
-
-		if (present[chat.name] !== undefined) {
-			chatList[present[chat.name]].msg = msg;
-			chatList[present[chat.name]].unread += chat.unread;
-		} else {
-			present[chat.name] = chatList.length;
-			chatList.push(chat);
-		}
-	});
+var groups_data = {
+	groups: loadGroups(),
 };
+var current_group = null;
+// (async() => {
+// 	var groups = await loadGroups()
+//   })()
 
-let viewChatList = () => {
+
+let viewChatList = async () => {
+	groups = await groups_data.groups
+	console.log(groups)
 	DOM.chatList.innerHTML = "";
-	chatList
-	.sort((a, b) => mDate(b.msg.time).subtract(a.msg.time))
+	// chatList
+	groups
+	// .sort((a, b) => mDate(b.msg.time).subtract(a.msg.time))
 	.forEach((elem, index) => {
-		let statusClass = elem.msg.status < 2 ? "far" : "fas";
-		let unreadClass = elem.unread ? "unread" : "";
+		// let statusClass = elem.msg.status < 2 ? "far" : "fas";
+		// let unreadClass = elem.unread ? "unread" : "";
 
 		DOM.chatList.innerHTML += `
-		<div class="chat-list-item d-flex flex-row w-100 p-2 border-bottom ${unreadClass}" onclick="generateMessageArea(this, ${index})">
-			<img src="${elem.isGroup ? elem.group.pic : elem.contact.pic}" alt="Profile Photo" class="img-fluid rounded-circle mr-2" style="height:50px;">
+		<div class="chat-list-item d-flex flex-row w-100 p-2 border-bottom" onclick="generateMessageArea(this, ${index})">
 			<div class="w-50">
-				<div class="name">${elem.name}</div>
-				<div class="small last-message">${elem.isGroup ? contactList.find(contact => contact.id === elem.msg.sender).number + ": " : ""}${elem.msg.sender === user.id ? "<i class=\"" + statusClass + " fa-check-circle mr-1\"></i>" : ""} ${elem.msg.body}</div>
-			</div>
-			<div class="flex-grow-1 text-right">
-				<div class="small time">${mDate(elem.msg.time).chatListFormat()}</div>
-				${elem.unread ? "<div class=\"badge badge-success badge-pill small\" id=\"unread-count\">" + elem.unread + "</div>" : ""}
+				<div class="name">${elem.group_name}</div>
+
 			</div>
 		</div>
-		`;
+		`; //				<div class="small last-message">${elem.isGroup ? contactList.find(contact => contact.id === elem.msg.sender).number + ": " : ""}${elem.msg.sender === user.id ? "<i class=\"" + statusClass + " fa-check-circle mr-1\"></i>" : ""} ${elem.msg.body}</div>
 	});
 };
 
 let generateChatList = () => {
-	populateChatList();
+	// populateChatList();
 	viewChatList();
 };
 
@@ -141,9 +120,10 @@ let addMessageToMessageArea = (msg) => {
 
 	let htmlForGroup = `
 	<div class="small font-weight-bold text-primary">
-		${contactList.find(contact => contact.id === msg.sender).number}
+		${"fake number"}
 	</div>
 	`;
+	// ${contactList.find(contact => contact.id === msg.sender).number}
 
 	let sendStatus = `<i class="${msg.status < 2 ? "far" : "fas"} fa-check-circle"></i>`;
 
@@ -166,22 +146,53 @@ let addMessageToMessageArea = (msg) => {
 	DOM.messages.scrollTo(0, DOM.messages.scrollHeight);
 };
 
+let sendMessageToServer = (msg) => {
+	
+	ws.send(JSON.stringify(msg));
+}
+
+let receiveMessageFromServer = (ws) => {
+	ws.onmessage = function ({data}) { 
+		msg = JSON.parse(data)
+		console.log(msg)
+		console.log(user)
+		addMessageToMessageArea(msg);
+		MessageUtils.addMessage(msg);
+		generateChatList();
+	};
+}
+
+let connectWebSocket = () => {
+	let ws = new WebSocket(`ws://localhost:3030`);
+
+	ws.onopen = function() {
+		console.log("Connected to Server"); 
+	};
+
+	ws.onclose = function() { 
+		ws = null;
+		alert("Connection closed... refresh to try again!"); 
+	};
+	return ws
+}
+
 let generateMessageArea = (elem, chatIndex) => {
-	chat = chatList[chatIndex];
+	chat = groups[chatIndex];
+	current_group = groups[chatIndex]
 
 	mClassList(DOM.inputArea).contains("d-none", (elem) => elem.remove("d-none").add("d-flex"));
 	mClassList(DOM.messageAreaOverlay).add("d-none");
 
 	[...DOM.chatListItem].forEach((elem) => mClassList(elem).remove("active"));
 
-	mClassList(elem).contains("unread", () => {
-		 MessageUtils.changeStatusById({
-			isGroup: chat.isGroup,
-			id: chat.isGroup ? chat.group.id : chat.contact.id
-		});
-		mClassList(elem).remove("unread");
-		mClassList(elem.querySelector("#unread-count")).add("d-none");
-	});
+	// mClassList(elem).contains("unread", () => {
+	// 	 MessageUtils.changeStatusById({
+	// 		isGroup: chat.isGroup,
+	// 		id: chat.isGroup ? chat.group.id : chat.contact.id
+	// 	});
+	// 	mClassList(elem).remove("unread");
+	// 	mClassList(elem.querySelector("#unread-count")).add("d-none");
+	// });
 
 	if (window.innerWidth <= 575) {
 		mClassList(DOM.chatListArea).remove("d-flex").add("d-none");
@@ -191,23 +202,24 @@ let generateMessageArea = (elem, chatIndex) => {
 		mClassList(elem).add("active");
 	}
 
-	DOM.messageAreaName.innerHTML = chat.name;
-	DOM.messageAreaPic.src = chat.isGroup ? chat.group.pic : chat.contact.pic;
+	DOM.messageAreaName.innerHTML = chat.description;
+	// DOM.messageAreaPic.src = chat.isGroup ? chat.group.pic : chat.contact.pic;
 	
 	// Message Area details ("last seen ..." for contacts / "..names.." for groups)
-	if (chat.isGroup) {
-		let groupMembers = groupList.find(group => group.id === chat.group.id).members;
-		let memberNames = contactList
-				.filter(contact => groupMembers.indexOf(contact.id) !== -1)
-				.map(contact => contact.id === user.id ? "You" : contact.name)
-				.join(", ");
+	// if (chat.isGroup) {
+	// 	let groupMembers = groupList.find(group => group.id === chat.group.id).members;
+	// 	let memberNames = contactList
+	// 			.filter(contact => groupMembers.indexOf(contact.id) !== -1)
+	// 			.map(contact => contact.id === user.id ? "You" : contact.name)
+	// 			.join(", ");
 		
-		DOM.messageAreaDetails.innerHTML = `${memberNames}`;
-	} else {
-		DOM.messageAreaDetails.innerHTML = `last seen ${mDate(chat.contact.lastSeen).lastSeenFormat()}`;
-	}
+	// 	DOM.messageAreaDetails.innerHTML = `${memberNames}`;
+	// } else {
+	// 	DOM.messageAreaDetails.innerHTML = `last seen ${mDate(chat.contact.lastSeen).lastSeenFormat()}`;
+	// }
 
-	let msgs = chat.isGroup ? MessageUtils.getByGroupId(chat.group.id) : MessageUtils.getByContactId(chat.contact.id);
+	// let msgs = chat.isGroup ? MessageUtils.getByGroupId(chat.group.id) : MessageUtils.getByContactId(chat.contact.id);
+	let msgs = chat.messages
 
 	DOM.messages.innerHTML = "";
 
@@ -235,13 +247,15 @@ let sendMessage = () => {
 		body: value,
 		time: mDate().toString(),
 		status: 1,
-		recvId: chat.isGroup ? chat.group.id : chat.contact.id,
-		recvIsGroup: chat.isGroup
+		group: current_group["group_name"]
+		// recvId: chat.isGroup ? chat.group.id : chat.contact.id,
+		// recvIsGroup: chat.isGroup
 	};
 	
 	addMessageToMessageArea(msg);
 	MessageUtils.addMessage(msg);
 	generateChatList();
+	sendMessageToServer(msg);
 };
 
 let showProfileSettings = () => {
@@ -259,16 +273,19 @@ window.addEventListener("resize", e => {
 	if (window.innerWidth > 575) showChatList();
 });
 
-let init = () => {
+let init = async () => {
 	DOM.username.innerHTML = user.name;
-	DOM.displayPic.src = user.pic;
-	DOM.profilePic.stc = user.pic;
-	DOM.profilePic.addEventListener("click", () => DOM.profilePicInput.click());
-	DOM.profilePicInput.addEventListener("change", () => console.log(DOM.profilePicInput.files[0]));
-	DOM.inputName.addEventListener("blur", (e) => user.name = e.target.value);
+	// DOM.displayPic.src = user.pic;
+	// DOM.profilePic.stc = user.pic;
+	// DOM.profilePic.addEventListener("click", () => DOM.profilePicInput.click());
+	// DOM.profilePicInput.addEventListener("change", () => console.log(DOM.profilePicInput.files[0]));
+	// DOM.inputName.addEventListener("blur", (e) => user.name = e.target.value);
 	generateChatList();
+	receiveMessageFromServer(ws);
 
 	console.log("Click the Image at top-left to open settings.");
 };
 
+
+let ws = connectWebSocket();
 init();

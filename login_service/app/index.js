@@ -15,14 +15,14 @@ var CHAT_URL = "http://localhost:3000/chat"
 var AUTH_URL = "http://localhost:3000/"
 
 // var CHAT_HTML = path.join(__dirname + '/static/index.html')
-var CHAT_HTML = path.join(__dirname + '/static/zap_3/index_beta.html')
-var SCRIPT_JS = path.join(__dirname + '/static/zap_3/script.js')
-var DATE_JS = path.join(__dirname + '/static/zap_3/date-utils.js')
-var DATA_JS = path.join(__dirname + '/static/zap_3/datastore.js')
-var STYLE_JS = path.join(__dirname + '/static/zap_3/style.css')
-var CHAT_HTML = path.join(__dirname + '/static/zap_3/index_beta.html')
-var CHAT_HTML = path.join(__dirname + '/static/zap_3/index_beta.html')
-var CHAT_HTML = path.join(__dirname + '/static/zap_3/index_beta.html')
+var CHAT_HTML = path.join(__dirname + '/static/zap/index_beta.html')
+var SCRIPT_JS = path.join(__dirname + '/static/zap/script.js')
+var DATE_JS = path.join(__dirname + '/static/zap/date-utils.js')
+var DATA_JS = path.join(__dirname + '/static/zap/datastore.js')
+var STYLE_JS = path.join(__dirname + '/static/zap/style.css')
+var CHAT_HTML = path.join(__dirname + '/static/zap/index_beta.html')
+var CHAT_HTML = path.join(__dirname + '/static/zap/index_beta.html')
+var CHAT_HTML = path.join(__dirname + '/static/zap/index_beta.html')
 var LOGIN_HTML = path.join(__dirname + '/static/login.html')
 var SIGNIN_HTML = path.join(__dirname + '/static/signin.html')
 

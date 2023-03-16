@@ -15,7 +15,7 @@ wss.on("connection", ws => {
 
     ws.onmessage = ({data}) => {
         var value = JSON.parse(data)["value"]
-        console.log(`Client ${ws.id}: ${value}`);
+        console.log(`Client ${ws.id}: ${data}`);
         wss.clients.forEach(function each(client) {
             if (client !== ws && client.readyState === WebSocket.OPEN) {
                 client.send(`${data}`);
