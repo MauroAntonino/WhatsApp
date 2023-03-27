@@ -23,13 +23,13 @@ class Group:
         for group_name in resp:
             group = self.group.get_group(group_name) 
             group.messages = self.group.get_messages(group_name) 
+            group.users = self.group.get_group_users(group_name)
 
             list_of_groups.append(group)
         return list_of_groups
 
     def get_group_users(self, group_name):
         return self.group.get_group_users(group_name)
-
     
     def add_user_in_group(self, group_name, name, password):
         user = self.user.get_user(name, password)

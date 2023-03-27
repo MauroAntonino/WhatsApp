@@ -60,7 +60,7 @@ def group_add_user():
 @app.route('/group_users',methods = ['POST'])
 def group_users():
     try:
-        print('AQui 11')
+        print('AQui 11', flush=True)
         data = request.get_json()
         group_name = data["group_name"]
         response = group.get_group_users(group_name=group_name)

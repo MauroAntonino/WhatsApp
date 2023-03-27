@@ -45,6 +45,7 @@ let mClassList = (element) => {
 // in mobile-view
 let areaSwapped = false;
 
+var executed = false;
 let loadGroups = () => {
 	return new Promise((resolve, reject) => {
 		var req = new XMLHttpRequest();
@@ -58,9 +59,14 @@ let loadGroups = () => {
 		};
 		req.onreadystatechange = function () {
 			if (req.readyState === 4) {
-				console.log(req.status);
-				console.log(req.responseText);
-				resolve(JSON.parse(req.responseText)["response"]);
+				// console.log(req.status);
+				// console.log(req.responseText);
+				// resolve(JSON.parse(req.responseText)["response"]);
+				if (!executed) {
+					executed = true;
+					groups_data.groups = JSON.parse(req.responseText)["response"]
+				}
+				resolve(true)
 			}};
 		req.send(JSON.stringify(data));
 		// console.log(chatList)
@@ -68,16 +74,22 @@ let loadGroups = () => {
 }
 
 var groups_data = {
-	groups: loadGroups(),
+	groups: null,
 };
 var current_group = null;
-// (async() => {
-// 	var groups = await loadGroups()
-//   })()
+
+var append_message_group = (group_name, message) => {
+	groups.forEach(function(group) {
+		if (group.group_name == group_name){
+			group.messages.push(message)
+		}
+	})
+}
 
 
 let viewChatList = async () => {
-	groups = await groups_data.groups
+	await loadGroups()
+	groups = groups_data.groups
 	console.log(groups)
 	DOM.chatList.innerHTML = "";
 	// chatList
@@ -120,7 +132,7 @@ let addMessageToMessageArea = (msg) => {
 
 	let htmlForGroup = `
 	<div class="small font-weight-bold text-primary">
-		${"fake number"}
+		${msg.name}
 	</div>
 	`;
 	// ${contactList.find(contact => contact.id === msg.sender).number}
@@ -132,7 +144,7 @@ let addMessageToMessageArea = (msg) => {
 		<div class="options">
 			<a href="#"><i class="fas fa-angle-down text-muted px-2"></i></a>
 		</div>
-		${chat.isGroup ? htmlForGroup : ""}
+			${(msg.sender != user.id) ? htmlForGroup : ""}
 		<div class="d-flex flex-row">
 			<div class="body m-1 mr-2">${msg.body}</div>
 			<div class="time ml-auto small text-right flex-shrink-0 align-self-end text-muted" style="width:75px;">
@@ -154,16 +166,20 @@ let sendMessageToServer = (msg) => {
 let receiveMessageFromServer = (ws) => {
 	ws.onmessage = function ({data}) { 
 		msg = JSON.parse(data)
-		console.log(msg)
-		console.log(user)
-		addMessageToMessageArea(msg);
-		MessageUtils.addMessage(msg);
+		// console.log(msg)
+		// console.log(user)
+		if (msg["group"] == current_group.group_name){
+			addMessageToMessageArea(msg)
+		}
+		append_message_group(msg["group"], msg)
+		// MessageUtils.addMessage(msg);
 		generateChatList();
 	};
 }
 
 let connectWebSocket = () => {
-	let ws = new WebSocket(`ws://localhost:3030`);
+	string = `ws://localhost:3030/?id=${user.id}`
+	let ws = new WebSocket(string);
 
 	ws.onopen = function() {
 		console.log("Connected to Server"); 
@@ -244,16 +260,19 @@ let sendMessage = () => {
 
 	let msg = {
 		sender: user.id,
+		name: user.name,
 		body: value,
 		time: mDate().toString(),
 		status: 1,
-		group: current_group["group_name"]
+		group: current_group["group_name"],
+		users: current_group["users"]
 		// recvId: chat.isGroup ? chat.group.id : chat.contact.id,
 		// recvIsGroup: chat.isGroup
 	};
 	
+	append_message_group(current_group["group_name"], msg)
 	addMessageToMessageArea(msg);
-	MessageUtils.addMessage(msg);
+	// MessageUtils.addMessage(msg);
 	generateChatList();
 	sendMessageToServer(msg);
 };
