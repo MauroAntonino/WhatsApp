@@ -3,11 +3,14 @@ version: "3.7"
 services:
   login:
     container_name: node-login
+    restart: always
     volumes:
-      - login:/login_service/app
+      - ./:/login_service/app
+      - login:/login_service/app/node_modules/
     depends_on:
       - mysql
     build: ./login_service/app
+    command: ["npm", "run", "start:dev"]
     # env_file: ./.env
     ports:
       - 3000:3000
