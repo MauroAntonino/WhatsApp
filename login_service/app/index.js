@@ -17,8 +17,8 @@ var AUTH_URL = "http://localhost:3000/"
 // var CHAT_HTML = path.join(__dirname + '/static/index.html')
 var CHAT_HTML = path.join(__dirname + '/static/zap/index_beta.html')
 var SCRIPT_JS = path.join(__dirname + '/static/zap/script.js')
+var MESSAGE_HANDLER = path.join(__dirname + '/static/zap/message_handler.js')
 var DATE_JS = path.join(__dirname + '/static/zap/date-utils.js')
-var DATA_JS = path.join(__dirname + '/static/zap/datastore.js')
 var STYLE_JS = path.join(__dirname + '/static/zap/style.css')
 var CHAT_HTML = path.join(__dirname + '/static/zap/index_beta.html')
 var CHAT_HTML = path.join(__dirname + '/static/zap/index_beta.html')
@@ -30,8 +30,8 @@ const app = express();
 
 app.use('/script', express.static(SCRIPT_JS));
 app.use('/date', express.static(DATE_JS));
-app.use('/data', express.static(DATA_JS));
 app.use('/css',express.static(STYLE_JS));
+app.use('/message_handler',express.static(MESSAGE_HANDLER));
 
 app.use(session({
 	secret: 'secret',

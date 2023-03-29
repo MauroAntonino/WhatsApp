@@ -1,8 +1,7 @@
 {
   "name": "login-project",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "mian": "index.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -17,5 +16,13 @@
     "jsonwebtoken": "^8.5.1",
     "mysql2": "3.1.0",
     "nodemon": "^2.0.19"
-  }
+  },
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "start:dev": "nodemon index.js"
+  },
+  "description": ""
 }

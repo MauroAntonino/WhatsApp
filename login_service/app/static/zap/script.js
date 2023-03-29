@@ -59,17 +59,14 @@ let loadGroups = () => {
 		};
 		req.onreadystatechange = function () {
 			if (req.readyState === 4) {
-				// console.log(req.status);
-				// console.log(req.responseText);
-				// resolve(JSON.parse(req.responseText)["response"]);
 				if (!executed) {
 					executed = true;
+					console.log(JSON.parse(req.responseText)["response"])
 					groups_data.groups = JSON.parse(req.responseText)["response"]
 				}
 				resolve(true)
 			}};
 		req.send(JSON.stringify(data));
-		// console.log(chatList)
 	})
 }
 
@@ -158,38 +155,12 @@ let addMessageToMessageArea = (msg) => {
 	DOM.messages.scrollTo(0, DOM.messages.scrollHeight);
 };
 
-let sendMessageToServer = (msg) => {
-	
-	ws.send(JSON.stringify(msg));
-}
-
-let receiveMessageFromServer = (ws) => {
-	ws.onmessage = function ({data}) { 
-		msg = JSON.parse(data)
-		// console.log(msg)
-		// console.log(user)
+let receiveMessageFromServer = (msg) => {
 		if (msg["group"] == current_group.group_name){
 			addMessageToMessageArea(msg)
 		}
 		append_message_group(msg["group"], msg)
-		// MessageUtils.addMessage(msg);
 		generateChatList();
-	};
-}
-
-let connectWebSocket = () => {
-	string = `ws://localhost:3030/?id=${user.id}`
-	let ws = new WebSocket(string);
-
-	ws.onopen = function() {
-		console.log("Connected to Server"); 
-	};
-
-	ws.onclose = function() { 
-		ws = null;
-		alert("Connection closed... refresh to try again!"); 
-	};
-	return ws
 }
 
 let generateMessageArea = (elem, chatIndex) => {
@@ -272,9 +243,8 @@ let sendMessage = () => {
 	
 	append_message_group(current_group["group_name"], msg)
 	addMessageToMessageArea(msg);
-	// MessageUtils.addMessage(msg);
 	generateChatList();
-	sendMessageToServer(msg);
+	serv.send(msg)
 };
 
 let showProfileSettings = () => {
@@ -293,18 +263,11 @@ window.addEventListener("resize", e => {
 });
 
 let init = async () => {
+	serv.receive(receiveMessageFromServer)
 	DOM.username.innerHTML = user.name;
-	// DOM.displayPic.src = user.pic;
-	// DOM.profilePic.stc = user.pic;
-	// DOM.profilePic.addEventListener("click", () => DOM.profilePicInput.click());
-	// DOM.profilePicInput.addEventListener("change", () => console.log(DOM.profilePicInput.files[0]));
-	// DOM.inputName.addEventListener("blur", (e) => user.name = e.target.value);
 	generateChatList();
-	receiveMessageFromServer(ws);
-
 	console.log("Click the Image at top-left to open settings.");
 };
 
-
-let ws = connectWebSocket();
+serv = new MessageService()
 init();
