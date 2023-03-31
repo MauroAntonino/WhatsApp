@@ -49,7 +49,8 @@ var executed = false;
 let loadGroups = () => {
 	return new Promise((resolve, reject) => {
 		var req = new XMLHttpRequest();
-		var url  = "http://127.0.0.1:5000/groups"
+		var url = urls.create_group_url
+		// var url  = "http://127.0.0.1:5000/groups"
 	
 		req.open("POST", url);
 		req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");

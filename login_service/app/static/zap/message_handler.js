@@ -1,6 +1,7 @@
 class MessageService{
     constructor() {
-        var url = 'ws://localhost:3030'
+        // var url = 'ws://localhost:3030'
+        var url = urls.websocket_url
         var end_url = `${url}/?id=${user.id}`
         let ws = new WebSocket(end_url);
     

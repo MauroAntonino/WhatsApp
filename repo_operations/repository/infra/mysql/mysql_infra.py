@@ -1,12 +1,13 @@
 from mysql import connector
+import os
 
 class MySql:    
     def connect(self):
         return connector.connect(
-            host="mysql",
-            user="root",
-            password="test01",
-            database="login"
+            host=os.getenv('MYSQL_HOST'),
+            user=os.getenv('MYSQL_USER'),
+            password=os.getenv('MYSQL_PASSWORD'),
+            database=os.getenv('MYSQL_DB')
         )
 
 class Group:
@@ -16,7 +17,7 @@ class Group:
     def get_group(self, group_name):
         db = self.get_db()
         cursor = db.cursor()
-        query = ("SELECT * FROM Groups WHERE name = '{name}'".format(name=group_name))
+        query = ("SELECT * FROM Groups1 WHERE name = '{name}'".format(name=group_name))
 
         cursor.execute(query)
         response = [item for item in cursor]
@@ -64,7 +65,7 @@ class Group:
     def create_group(self, name, description):
         db = self.get_db()
         cursor = db.cursor()
-        query = ("INSERT INTO Groups ( name, description ) VALUES( '{name}', '{description}');".format(name=name, description=description))
+        query = ("INSERT INTO Groups1 ( name, description ) VALUES( '{name}', '{description}');".format(name=name, description=description))
         try:
             cursor.execute(query)
         except:

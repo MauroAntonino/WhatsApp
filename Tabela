@@ -7,7 +7,7 @@ CREATE TABLE Users
  password VARCHAR(100) NOT NULL  
 ); 
 
-CREATE TABLE Groups 
+CREATE TABLE Groups1 
 ( 
  name VARCHAR(100) PRIMARY KEY NOT NULL,  
  description VARCHAR(100)  
@@ -30,6 +30,6 @@ CREATE TABLE Messages
 ALTER TABLE Users ADD UNIQUE unique_index (name, email);
 ALTER TABLE UserGroups ADD UNIQUE unique_index (user, group_name);
 ALTER TABLE UserGroups ADD FOREIGN KEY(user) REFERENCES Users (id);
-ALTER TABLE UserGroups ADD FOREIGN KEY(group_name) REFERENCES Groups (name);
+ALTER TABLE UserGroups ADD FOREIGN KEY(group_name) REFERENCES Groups1 (name);
 ALTER TABLE Messages ADD FOREIGN KEY(user) REFERENCES Users (id);
-ALTER TABLE Messages ADD FOREIGN KEY(group_name) REFERENCES Groups (name);
+ALTER TABLE Messages ADD FOREIGN KEY(group_name) REFERENCES Groups1 (name);

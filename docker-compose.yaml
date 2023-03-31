@@ -15,12 +15,18 @@ services:
     ports:
       - 3000:3000
     #   - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+    env_file: .env
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_USER: root
-      MYSQL_PASSWORD: test01
-      MYSQL_DB: login
-      CHAT_HOST: chat
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DB: ${MYSQL_DB}
+      CHAT_HOST: ${CHAT_HOST}
+
+      CREATE_GROUP_URL: ${CREATE_GROUP_URL}
+      WEBSOCKET_URL: ${WEBSOCKET_URL}
+      CHAT_URL: ${CHAT_URL}
+      AUTH_URL: ${AUTH_URL}
     networks:
       - backend
   
@@ -47,8 +53,14 @@ services:
     # env_file: ./.env
     ports:
       - 5000:5000
+    env_file: .env
     environment:
       PYTHONUNBUFFERED: 1
+
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DB: ${MYSQL_DB}
     networks:
       - backend
 
@@ -57,9 +69,10 @@ services:
     image: mysql:5.7
     volumes:
       - todo-mysql-data:/var/lib/mysql
+    env_file: .env
     environment: 
-      MYSQL_ROOT_PASSWORD: test01
-      MYSQL_DATABASE: login
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_USER}
     networks:
       - backend      
 networks:

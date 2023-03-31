@@ -8,11 +8,14 @@ const mysql_adapter = require('./adapters/mysql_adapter.js')
 const User = require('./domain/repository/entities/users.js')
 var fs = require('fs');
 
-// console.log(__dirname)
-// console.log(path.join(__dirname, 'static'))
+
 // var chat_host = process.env.CHAT_HOST
-var CHAT_URL = "http://localhost:3000/chat"
-var AUTH_URL = "http://localhost:3000/"
+var CREATE_GROUP_URL = process.env.CREATE_GROUP_URL
+var WEBSOCKET_URL = process.env.WEBSOCKET_URL
+var CHAT_URL = process.env.CHAT_URL
+var AUTH_URL = process.env.AUTH_URL
+// var CHAT_URL = "http://localhost:3000/chat"
+// var AUTH_URL = "http://localhost:3000/"
 
 // var CHAT_HTML = path.join(__dirname + '/static/index.html')
 var CHAT_HTML = path.join(__dirname + '/static/zap/index_beta.html')
@@ -101,7 +104,13 @@ app.get('/chat', async function(request, response){
 		var err, words = await fs.promises.readFile(CHAT_HTML, 'utf8');
 		var template = Handlebars.compile(words);
 		console.log({"name": request.session.username, "id": request.session.user_id, "password": request.session.password})
-		data = {"name": request.session.username, "id": request.session.user_id, "password": request.session.password}
+		data = {
+			"name": request.session.username, 
+			"id": request.session.user_id, 
+			"password": request.session.password,
+			"create_group_url": CREATE_GROUP_URL,
+			"websocket_url": WEBSOCKET_URL
+		}
 		var result = template(data);
 		response.send(result)
 	}
